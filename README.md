@@ -1,5 +1,5 @@
 # Curso de nodejs de Fernando Herrera
 ## Secciones:
-* hola-mundo
-* Fundamentos
-* bases-node
+* 01-hola-mundo
+* 02-Fundamentos
+* 03-bases-node
