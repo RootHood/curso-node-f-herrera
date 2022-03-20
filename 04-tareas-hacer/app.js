@@ -1,5 +1,5 @@
 import 'colors';
-import { inquirerMenu, pause, readInput } from "./helpers/inquirer.js";
+import { inquirerMenu, listTasksToComplete, listTasksToRemove, pause, readInput, showConfirm } from "./helpers/inquirer.js";
 import { getTasks, saveInStorage } from './helpers/data-handler.js';
 import { TaskHandler } from './models/task-handler.model.js';
 
@@ -7,7 +7,11 @@ const main = async() => {
     let opt = '';
     let tasks = new TaskHandler();
 
+    const tasksSaved = getTasks();
+    tasks.loadTasksFromArray(tasksSaved);
     do {
+        const tasksSaved = getTasks();
+        tasks.loadTasksFromArray(tasksSaved);
         opt = await inquirerMenu();
 
         switch(opt) {
@@ -17,31 +21,42 @@ const main = async() => {
                 saveInStorage(JSON.stringify(tasks.taskList));
             break;
             case 2: 
-                showTasks(tasks);
+                tasks.allTasks();
             break;
-            case 0: 
-                console.log('Thanks form use the App!!');
-                pause().then(() => console.clear());
+            case 3: 
+                tasks.loadCompletedTasks();
+            break;
+            case 4: 
+                tasks.loadPendentTasks();
+            break;
+            case 5: 
+                const ids = await listTasksToComplete(tasks.taskList);
+                tasks.handlerTaskComplete(ids);
+            break;
+            case 6:
+                const taskId = await listTasksToRemove(tasks.taskList);
+                let ok = null;
+                if (taskId) {
+                    ok = await showConfirm('¿Realmente desea borrar?');
+                }
+                if (ok) {
+                    tasks.removeTask(taskId);
+                    saveInStorage(JSON.stringify(tasks.taskList));
+                }
+            break;
+            case 7:
+                const conf = await showConfirm('¿Desea salir?');
+                if (!conf) opt = 1;
             break;
         }
-
-        if (opt !== 0) await pause();
+        if (opt !== 7) await pause();
     } while (opt !== 7);
 }
 
-const showTasks = (tasks) => {
-    const tasksSaved = getTasks();
-
-    if (!tasksSaved) {
-        console.log(`\n    Sin tareas que mostrar\n`.red);
-        return;
-    }
-
-    tasks.loadTasksFromArray(tasksSaved);
-    console.log(tasks.taskList); 
+export const loadTasks = () => {
+   
 }
 
 main().then(() => {
-    console.log('Good bye!! Thanks for use');
     console.clear();
 });

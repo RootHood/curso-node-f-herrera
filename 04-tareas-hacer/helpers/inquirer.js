@@ -75,3 +75,62 @@ export const readInput = async(message) => {
     const { desc } = await inquirer.prompt(question);
     return desc;
 }
+
+export const showConfirm = async(message) => {
+    const question = [
+        {
+            type: 'confirm',
+            name: 'ok',
+            message
+        }
+    ];
+    const { ok } = await inquirer.prompt(question);
+    return ok;
+}
+
+export const listTasksToRemove = async(tasks) => {
+    const choices = tasks.map((task, index) => {
+        const i = `${ index + 1 }`.green;
+        return {
+            value: task.id,
+            name: `${ i }. ${ task.desc }`
+        }
+    });
+    choices.push(
+        {
+            value: null,
+            name: '0.'.green + ' Salir'
+        }
+    )
+    const menu = [
+        {
+            type: 'list',
+            name: 'taskId',
+            message: 'Seleccione la tarea para borrarla',
+            choices
+        }
+    ]
+    const { taskId } = await inquirer.prompt(menu);
+    return taskId;
+}
+
+export const listTasksToComplete = async(tasks) => {
+    const choices = tasks.map((task, index) => {
+        const i = `${ index + 1 }`.green;
+        return {
+            value: task.id,
+            name: `${ i }. ${ task.desc }`,
+            checked: task.completedIn ? true : false
+        }
+    });
+    const menu = [
+        {
+            type: 'checkbox',
+            name: 'ids',
+            message: 'Seleccione las tareas a completar',
+            choices
+        }
+    ]
+    const { ids } = await inquirer.prompt(menu);
+    return ids;
+}
