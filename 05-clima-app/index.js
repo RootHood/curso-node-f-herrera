@@ -11,29 +11,42 @@ const main = async() => {
     opt = await inquirerMenu()
     switch(opt) {
       case 1: 
-
         // MOSTRAR MENSAJE
+        // BUSCAR LUGARES
         const serchTerms = await readInput('Ciudad: ');
         const places = await searchs.town(serchTerms);
 
-        // BUSCAR LUGARES
-        const selectedId = await listPlaces(places);
-        const selectedPlace = places.find(place => place.id === selectedId);
-      
         // SELECCIONAR EL LUGAR
+        const selectedId = await listPlaces(places);
+        if (!selectedId) { continue; }
+
+        const selectedPlace = places.find(place => place.id === selectedId);
+        // GUARDAR EN DB
+        searchs.saveHistorial(selectedPlace.name);
+        searchs.saveData();
+      
         // CLIMA
+        const weatherResult = await searchs.weatherByCoordinates(selectedPlace.lat, selectedPlace.lng);
+
         // MOSTRAR RESULTADOS
+        console.clear();
         console.log('\nInformación de la ciudad\n'.green);
         console.log('Ciudad:',selectedPlace.name);
         console.log('Lat:',selectedPlace.lat);
         console.log('Lng:',selectedPlace.lng);
-        console.log('Temperatura:',);
-        console.log('Mínima:',);
-        console.log('Máxima:', );
+        console.log('Temperatura:',weatherResult.temp);
+        console.log('Mínima:',weatherResult.min);
+        console.log('Máxima:',weatherResult.max);
+        console.log('Descripción:',weatherResult.desc);
         console.log('\n');
         break;
       case 2: 
-        console.log('Historial')  ;
+        console.clear();
+        searchs.historialCapitalized.forEach((place, i) => {
+          const index = `${ i + 1 }`.green;
+          console.log(`${ index }. ${ place }`);
+        })
+        console.log('\n');
         break;
       case 0: 
         console.log('Salir');       
